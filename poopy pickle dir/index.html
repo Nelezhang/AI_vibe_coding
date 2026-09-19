@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Johnson - Student Resume</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">AJ</div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#hobbies" class="nav-link">Activities</a></li>
+                <li><a href="#subjects" class="nav-link">Subjects</a></li>
+                <li><a href="#links" class="nav-link">Links</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="profile-image">
+                    <img src="https://via.placeholder.com/200" alt="Profile Picture">
+                </div>
+                <div class="hero-text">
+                    <h1 class="name">Alex Johnson</h1>
+                    <p class="tagline">Passionate Student • Tech Enthusiast • Creative Thinker</p>
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary" onclick="scrollToSection('about')">Learn More</button>
+                        <button class="btn btn-secondary" onclick="scrollToSection('links')">Contact</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>I'm a dedicated and ambitious student with a passion for learning and personal growth. I thrive in collaborative environments and love tackling new challenges with creativity and determination.</p>
+                </div>
+                <div class="school-info">
+                    <h3>School Information</h3>
+                    <div class="info-card">
+                        <p><strong>School:</strong> Sunshine High School</p>
+                        <p><strong>Grade:</strong> Junior (11th Grade)</p>
+                        <p><strong>Location:</strong> San Francisco, CA</p>
+                        <p><strong>GPA:</strong> 3.8/4.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hobbies & Activities Section -->
+    <section id="hobbies" class="hobbies">
+        <div class="container">
+            <h2 class="section-title">Hobbies & Activities</h2>
+            <div class="activities-grid">
+                <div class="activity-card">
+                    <div class="icon">🎨</div>
+                    <h3>Digital Art</h3>
+                    <p>Creating stunning digital illustrations and UI designs in my free time.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="icon">⚽</div>
+                    <h3>Soccer</h3>
+                    <p>Played varsity soccer for 3 years, team captain this year!</p>
+                </div>
+                <div class="activity-card">
+                    <div class="icon">🎵</div>
+                    <h3>Music Production</h3>
+                    <p>Producing electronic music and experimenting with different genres.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="icon">💻</div>
+                    <h3>Coding</h3>
+                    <p>Building web applications and learning new programming languages.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="icon">📚</div>
+                    <h3>Debate Club</h3>
+                    <p>Member of the school debate team, won regional competition in 2024.</p>
+                </div>
+                <div class="activity-card">
+                    <div class="icon">🌍</div>
+                    <h3>Volunteering</h3>
+                    <p>Active in community service and environmental awareness initiatives.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Favorite Subjects Section -->
+    <section id="subjects" class="subjects">
+        <div class="container">
+            <h2 class="section-title">Favorite Subjects</h2>
+            <div class="subjects-grid">
+                <div class="subject-card">
+                    <h3>Computer Science</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 95%"></div>
+                    </div>
+                    <p class="grade">A+</p>
+                </div>
+                <div class="subject-card">
+                    <h3>Mathematics</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 92%"></div>
+                    </div>
+                    <p class="grade">A+</p>
+                </div>
+                <div class="subject-card">
+                    <h3>English Literature</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 88%"></div>
+                    </div>
+                    <p class="grade">A</p>
+                </div>
+                <div class="subject-card">
+                    <h3>Physics</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 90%"></div>
+                    </div>
+                    <p class="grade">A</p>
+                </div>
+                <div class="subject-card">
+                    <h3>History</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 87%"></div>
+                    </div>
+                    <p class="grade">A</p>
+                </div>
+                <div class="subject-card">
+                    <h3>Art & Design</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 94%"></div>
+                    </div>
+                    <p class="grade">A+</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Links Section -->
+    <section id="links" class="links">
+        <div class="container">
+            <h2 class="section-title">Connect With Me</h2>
+            <div class="links-container">
+                <a href="https://github.com" class="link-card" target="_blank">
+                    <span class="link-icon">💻</span>
+                    <span class="link-text">GitHub</span>
+                </a>
+                <a href="https://linkedin.com" class="link-card" target="_blank">
+                    <span class="link-icon">💼</span>
+                    <span class="link-text">LinkedIn</span>
+                </a>
+                <a href="mailto:alex@example.com" class="link-card">
+                    <span class="link-icon">📧</span>
+                    <span class="link-text">Email</span>
+                </a>
+                <a href="https://twitter.com" class="link-card" target="_blank">
+                    <span class="link-icon">🐦</span>
+                    <span class="link-text">Twitter</span>
+                </a>
+                <a href="https://instagram.com" class="link-card" target="_blank">
+                    <span class="link-icon">📸</span>
+                    <span class="link-text">Instagram</span>
+                </a>
+                <a href="https://portfolio.example.com" class="link-card" target="_blank">
+                    <span class="link-icon">🎨</span>
+                    <span class="link-text">Portfolio</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Alex Johnson. All rights reserved. | Built with ❤️</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
