@@ -1,9 +1,9 @@
-# Simple web
+# Kyle's First website
 
 Description:
-1-2 sentences
+Resume of Kyle Zhang
 
-![Screenshot](screenshot.png)
+![Screenshot](Screenshot Kyle.png)
 
 ![Screenshot2](screenshot2.png)
 
