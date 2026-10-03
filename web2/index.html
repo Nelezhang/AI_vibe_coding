@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111323" />
+    <meta name="description" content="Make the wait feel magical. Create a beautiful countdown for your next big moment." />
+    <title>Moment — Count down to what matters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Moment home"><span class="brand-mark" aria-hidden="true">✳</span> moment<span class="brand-period">.</span></a>
+        <span class="topbar-note"><span class="status-dot"></span> A little closer, every second</span>
+      </header>
+
+      <section class="hero" aria-labelledby="event-title">
+        <div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT BIG MOMENT <span class="eyebrow-line"></span></div>
+        <h1 id="event-title">The good stuff<br /><span>is getting closer.</span></h1>
+        <p class="hero-subtitle" id="event-date-label">Every second is a little step toward something wonderful.</p>
+
+        <div class="timer" role="timer" aria-label="Time remaining">
+          <div class="time-unit"><span class="time-value" id="days">000</span><span class="time-label">days</span></div>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <div class="time-unit"><span class="time-value" id="hours">00</span><span class="time-label">hours</span></div>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <div class="time-unit"><span class="time-value" id="minutes">00</span><span class="time-label">minutes</span></div>
+          <span class="time-separator seconds-separator" aria-hidden="true">:</span>
+          <div class="time-unit seconds-unit"><span class="time-value" id="seconds">00</span><span class="time-label">seconds</span></div>
+        </div>
+        <p class="finished-message" id="finished-message" hidden>Today is the day. Make it unforgettable! ✨</p>
+
+        <button class="customize-button" id="open-settings" type="button"><span aria-hidden="true">✦</span> Make it yours</button>
+      </section>
+
+      <footer class="footer"><span>Made for the moments that matter.</span><span class="footer-sparkle" aria-hidden="true">✳</span></footer>
+    </main>
+
+    <div class="modal-backdrop" id="modal-backdrop" hidden>
+      <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button class="close-button" id="close-settings" type="button" aria-label="Close settings">×</button>
+        <div class="panel-kicker">A COUNTDOWN, YOUR WAY</div>
+        <h2 id="settings-title">Make it yours<span>.</span></h2>
+        <p class="panel-intro">Pick a moment. Set the scene. Let the anticipation begin.</p>
+
+        <form id="event-form">
+          <label class="field-label" for="event-name">WHAT ARE YOU COUNTING DOWN TO?</label>
+          <input id="event-name" name="eventName" type="text" maxlength="48" placeholder="e.g. The big day" required />
+          <div class="preset-row" aria-label="Event ideas">
+            <button type="button" class="preset-chip" data-name="My birthday">🎂 Birthday</button>
+            <button type="button" class="preset-chip" data-name="Graduation day">🎓 Graduation</button>
+            <button type="button" class="preset-chip" data-name="Game release day">🎮 Game release</button>
+          </div>
+
+          <label class="field-label date-label" for="event-date">THE DATE &amp; TIME</label>
+          <input id="event-date" name="eventDate" type="datetime-local" required />
+
+          <div class="field-label background-label">SET THE MOOD</div>
+          <div class="theme-grid" role="group" aria-label="Choose a background theme">
+            <button class="theme-swatch theme-dusk" type="button" data-theme="dusk" aria-label="Dusk theme" aria-pressed="true"></button>
+            <button class="theme-swatch theme-rose" type="button" data-theme="rose" aria-label="Rose theme" aria-pressed="false"></button>
+            <button class="theme-swatch theme-ocean" type="button" data-theme="ocean" aria-label="Ocean theme" aria-pressed="false"></button>
+            <button class="theme-swatch theme-forest" type="button" data-theme="forest" aria-label="Forest theme" aria-pressed="false"></button>
+            <label class="theme-swatch upload-swatch" for="background-upload" title="Upload a photo" aria-label="Upload a background photo"><span aria-hidden="true">＋</span><input id="background-upload" type="file" accept="image/*" /></label>
+          </div>
+          <p class="upload-note" id="upload-note">Or add a photo of your own</p>
+          <button class="save-button" type="submit">Save my countdown <span aria-hidden="true">↗</span></button>
+        </form>
+      </section>
+    </div>
+  </body>
+</html>
