@@ -3,4 +3,4 @@
 Description:
 Resume of Kyle Zhang
 
-![Screenshot](Screenshot Kyle.png)
+![Screenshot](Kyle.png)
