@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08091c" />
+    <title>Galaxy Attack — Space Wave</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#" aria-label="Galaxy Attack home">
+          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span>GALAXY<span class="brand-accent">ATTACK</span></span>
+        </a>
+        <div class="mode-tag"><span class="live-dot"></span> SPACE WAVE</div>
+      </header>
+
+      <section class="game-panel" aria-label="Galaxy Attack wave game">
+        <div class="hud">
+          <div class="hud-stat"><span class="hud-label">DISTANCE</span><strong id="score">00000</strong></div>
+          <div class="hud-center"><span class="wave-icon">⌁</span><span>WAVE RUN</span></div>
+          <div class="hud-stat hud-best"><span class="hud-label">BEST</span><strong id="best">00000</strong></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" width="960" height="600" aria-label="Space wave game. Press Space or click to switch direction."></canvas>
+          <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+        </div>
+        <footer class="game-footer">
+          <span><kbd>SPACE</kbd> FLIP DIRECTION</span>
+          <span class="footer-tip">DODGE THE GATES <i>•</i> GRAB THE STARS</span>
+          <span class="sound-indicator"><span></span> SYSTEM READY</span>
+        </footer>
+      </section>
+
+      <div class="controls">
+        <button id="startButton" class="primary-button" type="button"><span aria-hidden="true">▶</span> LAUNCH RUN</button>
+        <button id="resetButton" class="secondary-button" type="button">RESTART</button>
+      </div>
+      <p class="microcopy">A tiny mistake ends the run. How far can you fly?</p>
+    </main>
+  </body>
+</html>
