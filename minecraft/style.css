@@ -1,0 +1,121 @@
+:root {
+  --sky-start: #8ad8ff;
+  --sky-end: #dff6ff;
+  --panel: rgba(18, 24, 30, 0.82);
+  --text: #edf7ff;
+  --accent: #9df6a3;
+  --shadow: rgba(0,0,0,0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #96dcff 0%, #eafaff 100%);
+  color: var(--text);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+}
+
+.hud {
+  width: min(980px, 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--panel);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+}
+
+.brand {
+  letter-spacing: 0.08em;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.96rem;
+}
+
+#gameCanvas {
+  display: block;
+  width: min(980px, 100%);
+  height: auto;
+  background: linear-gradient(180deg, var(--sky-start) 0%, var(--sky-end) 46%, #c8ec88 46%, #7aa94d 100%);
+  border-radius: 14px;
+  border: 3px solid rgba(0,0,0,0.18);
+  box-shadow: 0 18px 40px var(--shadow);
+  image-rendering: pixelated;
+}
+
+.controls {
+  width: min(980px, 100%);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tips {
+  width: min(980px, 100%);
+  text-align: center;
+  color: rgba(10, 30, 38, 0.8);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 20px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #10231a;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+}
+
+#mineButton {
+  background: linear-gradient(135deg, #9df6a3, #72db69);
+}
+
+#placeButton {
+  background: linear-gradient(135deg, #ffd76a, #ffb347);
+}
+
+#resetButton {
+  background: linear-gradient(135deg, #8fd7ff, #5ea6ff);
+}
+
+@media (max-width: 640px) {
+  .hud {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stats {
+    gap: 10px;
+    font-size: 0.8rem;
+  }
+}

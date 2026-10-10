@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minecraft First Person</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="hud">
+      <div class="brand">Minecraft First Person</div>
+      <div class="stats">
+        <span>Blocks: <strong id="blockCount">0</strong></span>
+        <span>Health: <strong id="healthValue">5</strong></span>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <div class="controls">
+      <button id="mineButton" type="button">Mine</button>
+      <button id="placeButton" type="button">Place</button>
+      <button id="resetButton" type="button">Reset</button>
+    </div>
+
+    <div class="tips">WASD to move • Mouse to look • Click to mine • Right click to place • Space to jump</div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
