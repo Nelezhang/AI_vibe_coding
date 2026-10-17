@@ -294,7 +294,7 @@
     mode = 'combat';
     running = true;
     waveClock = waveLength;
-    spawnClock = 0.6;
+    spawnClock = 0.2;
     shop.classList.add('hidden');
     updateHud();
     clock.getDelta();
@@ -306,7 +306,7 @@
     weapons.length = 0;
     wave = 1;
     waveClock = waveLength;
-    spawnClock = 0.8;
+    spawnClock = 0.2;
     fireClock = 0;
     cash = 25;
     player.health = player.maxHealth;
@@ -514,7 +514,7 @@
       spawnClock -= dt;
       if (spawnClock <= 0) {
         spawnEnemy();
-        spawnClock = Math.max(0.3, 1.15 - wave * 0.045) * THREE.MathUtils.randFloat(0.72, 1.24);
+        spawnClock = wave > 5 ? 0.4 : 0.75;
       }
       updateEnemies(dt);
       if (running) {

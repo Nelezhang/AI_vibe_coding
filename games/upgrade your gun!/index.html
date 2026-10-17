@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10151d" />
+  <title>Upgrade Your Gun! — Scrapline</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <a class="logo" href="#"><span class="logo-icon">✦</span><span>SCRAP<span class="logo-accent">LINE</span></span></a>
+      <div class="tag"><i></i> GUN UPGRADE ARENA</div>
+      <div class="top-stat">HIGH SCORE <strong id="bestScore">0</strong></div>
+    </header>
+
+    <section class="arena-shell" aria-label="Three-dimensional gun upgrade shooter">
+      <div id="game" aria-label="3D arena. WASD to move, aim with mouse, click or Space to shoot."></div>
+      <div class="hud">
+        <div class="hud-box"><span>WAVE</span><strong id="wave">1</strong></div>
+        <div class="health-box"><div class="health-caption"><span>HULL</span><b id="healthText">100%</b></div><div class="health-track"><i id="healthFill"></i></div></div>
+        <div class="hud-box money"><span>SCRAP</span><strong>◆ <b id="scrap">0</b></strong></div>
+      </div>
+      <div class="notice" id="notice" aria-live="polite"></div>
+      <div class="screen" id="screen">
+        <div class="screen-card">
+          <span class="eyebrow" id="eyebrow">SURVIVE · SCAVENGE · UPGRADE</span>
+          <h1 id="screenTitle">UPGRADE<br /><em>YOUR GUN</em></h1>
+          <p id="screenCopy">Clear the arena, collect scrap, and turn a basic blaster into a wrecking machine.</p>
+          <button id="startButton">ENTER THE ARENA <b>↗</b></button>
+          <div class="controls-hint"><kbd>W A S D</kbd> MOVE <span>·</span> MOUSE AIM <span>·</span> CLICK / SPACE FIRE</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="upgrade-panel">
+      <div class="upgrade-heading"><span>INTERMISSION WEAPON BENCH</span><small>UPGRADE WHILE THE ARENA IS PAUSED</small></div>
+      <div class="upgrade-list">
+        <button class="upgrade" data-upgrade="damage" type="button"><span class="upgrade-icon amber">✹</span><span class="upgrade-info"><b>Heavy Rounds</b><small>Increase bullet damage</small></span><span class="cost">◆ <b id="damageCost">12</b></span></button>
+        <button class="upgrade" data-upgrade="rate" type="button"><span class="upgrade-icon cyan">»</span><span class="upgrade-info"><b>Rapid Trigger</b><small>Increase fire rate</small></span><span class="cost">◆ <b id="rateCost">15</b></span></button>
+        <button class="upgrade" data-upgrade="multishot" type="button"><span class="upgrade-icon violet">⟡</span><span class="upgrade-info"><b>Split Barrel</b><small>Fire an extra bullet</small></span><span class="cost">◆ <b id="multishotCost">24</b></span></button>
+      </div>
+      <div class="weapon-stats"><span>WEAPON <b id="weaponLevel">MK 1</b></span><span>DAMAGE <b id="damageStat">26</b></span><span>FIRE RATE <b id="rateStat">4.5 / SEC</b></span><span>BARRELS <b id="barrelStat">1</b></span></div>
+    </section>
+    <footer><span>SCRAPLINE // FIELD TEST 01</span><span>MOVE FAST. KEEP FIRING.</span></footer>
+  </main>
+</body>
+</html>
