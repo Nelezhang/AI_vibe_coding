@@ -1,0 +1,1 @@
+make a Three.js 3D exploration game that is exactly like brotato, with controls wasd and money you can pick up and buyable weapons that are mergable to create better damage

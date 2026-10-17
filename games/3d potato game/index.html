@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#101317" />
+  <title>Spudbound — 3D Arena</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="game">
+    <header class="topbar">
+      <a class="logo" href="#"><span class="logo-icon">✦</span><span>SPUDBOUND <small>ARENA SURVIVAL</small></span></a>
+      <div class="top-meta"><span class="live"><i></i> LIVE RUN</span><span class="wave-label">WAVE <b id="wave">1</b></span></div>
+    </header>
+
+    <section class="stage-wrap" aria-label="3D potato survival arena">
+      <div id="scene" class="scene"></div>
+      <div class="hud hud-left">
+        <div class="stat"><span>VITALITY</span><div class="health-track"><i id="healthBar"></i></div><b id="healthText">100 / 100</b></div>
+        <div class="stat"><span>SCRAP</span><b class="money"><span>◆</span><strong id="money">0</strong></b></div>
+      </div>
+      <div class="hud hud-right"><div class="stat"><span>THREATS</span><b id="threats">0</b></div><div class="stat"><span>WAVE ENDS</span><b id="timer">30</b></div></div>
+      <div class="crosshair-hint">WASD <span>MOVE</span><em>•</em> WEAPONS AUTO-FIRE</div>
+      <div id="overlay" class="overlay">
+        <section class="modal intro-modal">
+          <div class="overline">A LITTLE SPUD. A LOT OF TROUBLE.</div>
+          <h1>SPUD<span>BOUND</span></h1>
+          <p>Explore the arena, scoop up scrap, and hold off the strange things closing in. Build a loadout—and fuse matching weapons into stronger gear.</p>
+          <button id="startButton" class="primary" type="button">DROP INTO THE ARENA <span>↗</span></button>
+          <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>TO MOVE</span><b>·</b><span>AIM &amp; FIRE ARE AUTOMATIC</span></div>
+        </section>
+      </div>
+      <div id="shop" class="shop hidden" aria-live="polite">
+        <div class="shop-heading"><div><div class="overline">BREATHER BETWEEN WAVES</div><h2>FIELD <span>MARKET</span></h2></div><div class="market-cash">◆ <b id="shopMoney">0</b> SCRAP</div></div>
+        <p class="shop-note">Buy gear. Matching weapons merge automatically into a higher tier.</p>
+        <div id="shopCards" class="shop-cards"></div>
+        <div class="inventory"><span>YOUR LOADOUT</span><div id="weaponList"></div></div>
+        <button id="nextWave" class="primary next-wave" type="button">ENTER WAVE <span>→</span></button>
+      </div>
+    </section>
+
+    <footer class="bottom-bar"><div class="inventory-label">ARSENAL <span id="weaponCount">0 / 4</span><div id="quickWeapons" class="quick-weapons"></div></div><div class="tip">COLLECT SCRAP <i>◆</i> SURVIVE <i>◆</i> COMBINE WEAPONS</div><div class="best-label">BEST WAVE <b id="bestWave">1</b></div></footer>
+  </main>
+</body>
+</html>

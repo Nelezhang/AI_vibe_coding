@@ -29,7 +29,8 @@ let lastFrame = 0;
 let elapsed = 0;
 let distance = 0;
 let score = 0;
-let direction = -1;
+let direction = 1;
+let spaceHeld = false;
 let playerY = HEIGHT * 0.5;
 let gates = [];
 let orbs = [];
@@ -74,7 +75,8 @@ function resetGame() {
   elapsed = 0;
   distance = 0;
   score = 0;
-  direction = -1;
+  direction = 1;
+  spaceHeld = false;
   playerY = HEIGHT * 0.5;
   shake = 0;
   flash = 0;
@@ -123,13 +125,22 @@ function startGame() {
   requestAnimationFrame(gameLoop);
 }
 
-function flipDirection() {
+function holdSpace() {
+  if (spaceHeld) return;
   if (!running) {
     if (gameOver) resetGame();
     startGame();
   }
-  direction *= -1;
+  spaceHeld = true;
+  direction = -1;
   addParticles(PLAYER_X, playerY, '#66f7ff', 6);
+}
+
+function releaseSpace() {
+  if (!spaceHeld) return;
+  spaceHeld = false;
+  direction = 1;
+  if (running) addParticles(PLAYER_X, playerY, '#a77bff', 4);
 }
 
 function endGame() {
@@ -409,7 +420,7 @@ function drawOverlay() {
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#aab6e9';
   ctx.font = '600 17px Rajdhani, Arial, sans-serif';
-  ctx.fillText(gameOver ? `DISTANCE ${formatScore(score)}  ·  BEST ${formatScore(best)}` : 'Press SPACE or click to flip your wave', WIDTH / 2, HEIGHT / 2 + 9);
+  ctx.fillText(gameOver ? `DISTANCE ${formatScore(score)}  ·  BEST ${formatScore(best)}` : 'Hold SPACE to rise · Release to fall', WIDTH / 2, HEIGHT / 2 + 9);
   ctx.fillStyle = '#67edff';
   ctx.font = '700 12px Orbitron, Arial, sans-serif';
   ctx.fillText(gameOver ? 'PRESS SPACE TO TRY AGAIN' : 'DODGE THE GATES  ·  COLLECT THE STARS', WIDTH / 2, HEIGHT / 2 + 42);
@@ -444,15 +455,24 @@ function gameLoop(timestamp) {
 function flipFromInput(event) {
   if (event.code === 'Space' || event.key === ' ') {
     event.preventDefault();
-    if (!event.repeat) flipDirection();
+    if (!event.repeat) holdSpace();
   }
 }
 
 window.addEventListener('keydown', flipFromInput);
+window.addEventListener('keyup', (event) => {
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault();
+    releaseSpace();
+  }
+});
+window.addEventListener('blur', releaseSpace);
 canvas.addEventListener('pointerdown', (event) => {
   event.preventDefault();
-  flipDirection();
+  holdSpace();
 });
+window.addEventListener('pointerup', releaseSpace);
+window.addEventListener('pointercancel', releaseSpace);
 startButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
 
