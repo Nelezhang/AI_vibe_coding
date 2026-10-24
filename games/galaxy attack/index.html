@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#08091c" />
     <title>Galaxy Attack — Space Wave</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+    <script type="module" src="script.js"></script>
   </head>
   <body>
     <main class="game-shell">
@@ -26,6 +26,11 @@
         </div>
         <div class="canvas-wrap">
           <canvas id="gameCanvas" width="960" height="600" aria-label="Space wave game. Hold Space or click and hold to fly upward; release to fly downward."></canvas>
+          <div id="gameOverlay" class="game-overlay" aria-live="polite">
+            <strong id="overlayTitle">READY, PILOT?</strong>
+            <span id="overlaySubtitle">Hold SPACE to rise · Release to fall</span>
+            <small id="overlayHint">DODGE THE GATES · COLLECT THE STARS</small>
+          </div>
           <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
           <div class="corner corner-bl"></div><div class="corner corner-br"></div>
         </div>

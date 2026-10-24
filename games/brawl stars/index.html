@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111529" />
+  <title>Star Brawlers — Arena Clash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Star Brawlers home"><span class="brand-icon">✦</span><span>STAR<span>BRAWLERS</span></span></a>
+      <div class="top-pill"><i></i> QUICK MATCH <b>3D</b></div>
+    </header>
+
+    <section class="arena-frame" aria-label="3D battle arena">
+      <canvas id="arena" aria-label="Three-dimensional arena battle"></canvas>
+      <div class="arena-shade"></div>
+      <div class="game-hud" id="gameHud" hidden>
+        <div class="hud-health"><div class="health-heading"><span id="playerName">NOVA</span><b id="playerLevel">LEVEL 01</b></div><div class="health-track"><i id="healthBar"></i></div><b id="healthText">100 / 100</b><small class="level-progress" id="levelProgress">0 / 3 ELIMS TO LEVEL UP</small></div>
+        <div class="hud-wave"><small>ELIMINATIONS</small><strong id="kills">00</strong></div>
+        <div class="hud-controls"><kbd>W A S D</kbd> MOVE <span>·</span> MOUSE AIM <span>·</span> CLICK FIRE</div>
+      </div>
+      <div class="title-screen" id="titleScreen">
+        <div class="title-copy">
+          <span class="eyebrow"><i></i> PICK YOUR FIGHT</span>
+          <h1>OWN THE<br /><em>ARENA.</em></h1>
+          <p>Choose your brawler, loadout, and battleground. Then jump into the action.</p>
+        </div>
+        <div class="loadout-panel">
+          <div class="loadout-heading"><span>YOUR LOADOUT</span><span class="loadout-count" id="rosterCount"></span></div>
+          <label class="choice-row"><span class="choice-number">01</span><span class="choice-label"><small>BRAWLER</small><strong id="characterDesc">NOVA · ALL-ROUNDER</strong></span><select id="characterSelect" aria-label="Choose brawler"></select><span class="choice-arrow">⌄</span></label>
+          <label class="choice-row"><span class="choice-number">02</span><span class="choice-label"><small>WEAPON</small><strong id="weaponDesc">PULSE BLASTER · BALANCED</strong></span><select id="weaponSelect" aria-label="Choose weapon"></select><span class="choice-arrow">⌄</span></label>
+          <label class="choice-row"><span class="choice-number">03</span><span class="choice-label"><small>BATTLEGROUND</small><strong id="mapDesc">NEON DOCKS · OPEN LANES</strong></span><select id="mapSelect" aria-label="Choose battleground"></select><span class="choice-arrow">⌄</span></label>
+          <button id="playButton" class="play-button" type="button"><span>ENTER THE ARENA</span><b>→</b></button>
+          <div class="hint"><span>⌖</span> WASD TO MOVE <i>·</i> MOUSE TO AIM &amp; FIRE</div>
+        </div>
+        <div class="title-stamp"><strong>7</strong><span>BRAWLERS<br />TO CHOOSE</span></div>
+      </div>
+      <div class="battle-banner" id="battleBanner" role="status" aria-live="polite" hidden></div>
+    </section>
+    <footer class="page-footer"><span>STAR BRAWLERS <i>©</i> ARENA DIVISION</span><span>MOVE FAST. AIM TRUE. STAY SHARP.</span><span id="mapBadge">NEON DOCKS</span></footer>
+  </main>
+</body>
+</html>

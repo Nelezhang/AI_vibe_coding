@@ -1,12 +1,17 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
+const overlay = document.getElementById('gameOverlay');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlaySubtitle = document.getElementById('overlaySubtitle');
+const overlayHint = document.getElementById('overlayHint');
 
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
+const WIDTH = 960;
+const HEIGHT = 600;
 const PLAYER_X = 218;
 const PLAYER_SIZE = 11;
 const GATE_WIDTH = 43;
@@ -14,13 +19,104 @@ const BASE_SPEED = 310;
 const WAVE_SPEED = 325;
 const GATE_SPACING_MIN = 430;
 const GATE_SPACING_MAX = 520;
-const stars = Array.from({ length: 115 }, () => ({
-  x: Math.random() * WIDTH,
-  y: Math.random() * HEIGHT,
+const WORLD_SCALE = 60;
+const stars = Array.from({ length: 180 }, () => ({
+  x: Math.random() * 20 - 10,
+  y: Math.random() * 12 - 6,
   size: Math.random() * 1.7 + 0.35,
   depth: Math.random() * 0.8 + 0.12,
   phase: Math.random() * Math.PI * 2,
 }));
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(WIDTH, HEIGHT, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.25;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#090b22');
+scene.fog = new THREE.FogExp2('#090b22', 0.012);
+
+const camera = new THREE.PerspectiveCamera(23.5, WIDTH / HEIGHT, 0.1, 80);
+camera.position.set(0, 0, 24);
+camera.lookAt(0, 0, 0);
+
+scene.add(new THREE.HemisphereLight('#b8c8ff', '#17103d', 2.2));
+const keyLight = new THREE.PointLight('#65eaff', 34, 34);
+keyLight.position.set(-5, 7, 8);
+scene.add(keyLight);
+const violetLight = new THREE.PointLight('#8c4dff', 24, 30);
+violetLight.position.set(7, -5, 5);
+scene.add(violetLight);
+
+const backgroundPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(40, 25),
+  new THREE.MeshBasicMaterial({ color: '#0b1031' }),
+);
+backgroundPlane.position.z = -10;
+scene.add(backgroundPlane);
+
+const starGeometry = new THREE.BufferGeometry();
+starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(stars.length * 3), 3));
+const starPoints = new THREE.Points(
+  starGeometry,
+  new THREE.PointsMaterial({ color: '#c8e9ff', size: 0.055, sizeAttenuation: true, transparent: true, opacity: 0.9 }),
+);
+starPoints.position.z = -6;
+scene.add(starPoints);
+
+const grid = new THREE.GridHelper(28, 28, '#353c8b', '#252d70');
+grid.rotation.x = Math.PI / 2;
+grid.position.set(0, 0, -4.5);
+grid.material.transparent = true;
+grid.material.opacity = 0.17;
+scene.add(grid);
+
+const worldGroup = new THREE.Group();
+scene.add(worldGroup);
+
+const playerMaterial = new THREE.MeshStandardMaterial({
+  color: '#a7ffff', emissive: '#21dff7', emissiveIntensity: 2.2,
+  metalness: 0.35, roughness: 0.22,
+});
+const player = new THREE.Group();
+const shipShape = new THREE.Shape();
+shipShape.moveTo(0.25, 0);
+shipShape.lineTo(-0.16, 0.14);
+shipShape.lineTo(-0.08, 0);
+shipShape.lineTo(-0.16, -0.14);
+shipShape.closePath();
+const shipGeometry = new THREE.ExtrudeGeometry(shipShape, {
+  depth: 0.13, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.035, bevelThickness: 0.035,
+});
+const shipMesh = new THREE.Mesh(shipGeometry, playerMaterial);
+shipMesh.position.z = 0.08;
+player.add(shipMesh);
+const engineGlow = new THREE.Mesh(
+  new THREE.ConeGeometry(0.075, 0.2, 12),
+  new THREE.MeshBasicMaterial({ color: '#56eaff', transparent: true, opacity: 0.8 }),
+);
+engineGlow.rotation.z = Math.PI / 2;
+engineGlow.position.set(-0.19, 0, 0.04);
+player.add(engineGlow);
+player.position.z = 0.5;
+scene.add(player);
+
+const trailMaterial = new THREE.LineBasicMaterial({ color: '#67edff', transparent: true, opacity: 0.75 });
+let trailLine = new THREE.Line(new THREE.BufferGeometry(), trailMaterial);
+trailLine.position.z = 0.2;
+scene.add(trailLine);
+
+const particleGeometry = new THREE.BufferGeometry();
+particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(0), 3));
+const particlePoints = new THREE.Points(
+  particleGeometry,
+  new THREE.PointsMaterial({ color: '#fff1b1', size: 0.09, transparent: true, opacity: 0.9, sizeAttenuation: true }),
+);
+particlePoints.position.z = 0.9;
+scene.add(particlePoints);
 
 let best = loadBest();
 let running = false;
@@ -69,6 +165,97 @@ function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+function worldX(pixelX) {
+  return (pixelX - WIDTH / 2) / WORLD_SCALE;
+}
+
+function worldY(pixelY) {
+  return (HEIGHT / 2 - pixelY) / WORLD_SCALE;
+}
+
+function setOverlay() {
+  overlay.hidden = running;
+  if (running) return;
+  overlayTitle.textContent = gameOver ? 'SIGNAL LOST' : 'READY, PILOT?';
+  overlaySubtitle.textContent = gameOver
+    ? `DISTANCE ${formatScore(score)}  ·  BEST ${formatScore(best)}`
+    : 'Hold SPACE to rise · Release to fall';
+  overlayHint.textContent = gameOver ? 'PRESS SPACE TO TRY AGAIN' : 'DODGE THE GATES  ·  COLLECT THE STARS';
+}
+
+function disposeGroup(group) {
+  group.traverse((object) => {
+    if (object.geometry) object.geometry.dispose();
+    if (object.material) {
+      for (const material of Array.isArray(object.material) ? object.material : [object.material]) material.dispose();
+    }
+  });
+  worldGroup.remove(group);
+}
+
+function makeGate(x, center) {
+  const gapHeight = randomBetween(194, 224);
+  const gate = {
+    x,
+    gapTop: center - gapHeight * 0.5,
+    gapBottom: center + gapHeight * 0.5,
+    passed: false,
+    group: new THREE.Group(),
+  };
+  const bodyMaterial = new THREE.MeshStandardMaterial({
+    color: '#7045dc', emissive: '#5b28c8', emissiveIntensity: 1.3, metalness: 0.48, roughness: 0.27,
+  });
+  const edgeMaterial = new THREE.MeshStandardMaterial({
+    color: '#e3c3ff', emissive: '#b778ff', emissiveIntensity: 2.3, metalness: 0.25, roughness: 0.2,
+  });
+  const stripeMaterial = new THREE.MeshBasicMaterial({ color: '#caa2ff', transparent: true, opacity: 0.56 });
+  const gateWidth = GATE_WIDTH / WORLD_SCALE;
+
+  function addSegment(top, bottom) {
+    const height = Math.max(0, bottom - top);
+    if (!height) return;
+    const segment = new THREE.Mesh(new THREE.BoxGeometry(gateWidth, height / WORLD_SCALE, 0.62), bodyMaterial);
+    segment.position.set(0, worldY((top + bottom) * 0.5), 0);
+    gate.group.add(segment);
+
+    const inset = new THREE.Mesh(new THREE.BoxGeometry(gateWidth * 0.56, 0.025, 0.04), stripeMaterial);
+    inset.position.set(0, worldY((top + bottom) * 0.5), 0.34);
+    gate.group.add(inset);
+  }
+
+  addSegment(0, gate.gapTop);
+  addSegment(gate.gapBottom, HEIGHT);
+  for (const edgeY of [gate.gapTop, gate.gapBottom]) {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(gateWidth + 0.09, 0.075, 0.82), edgeMaterial);
+    rail.position.set(0, worldY(edgeY), 0.08);
+    gate.group.add(rail);
+  }
+  gate.group.position.set(worldX(x), 0, 0);
+  worldGroup.add(gate.group);
+  return gate;
+}
+
+function makeOrb(x, y) {
+  const group = new THREE.Group();
+  const jewelMaterial = new THREE.MeshStandardMaterial({
+    color: '#fff0a0', emissive: '#ffc83d', emissiveIntensity: 2.7, metalness: 0.35, roughness: 0.18,
+  });
+  const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.15, 0), jewelMaterial);
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.19, 0.018, 8, 24),
+    new THREE.MeshBasicMaterial({ color: '#fff0a0' }),
+  );
+  group.add(jewel, ring);
+  group.position.set(worldX(x), worldY(y), 0.38);
+  worldGroup.add(group);
+  return { x, y, radius: 9, collected: false, phase: Math.random() * 6, group };
+}
+
+function clearWorld() {
+  for (const gate of gates) disposeGroup(gate.group);
+  for (const orb of orbs) disposeGroup(orb.group);
+}
+
 function resetGame() {
   running = false;
   gameOver = false;
@@ -82,37 +269,29 @@ function resetGame() {
   flash = 0;
   trail = [];
   particles = [];
+  clearWorld();
   gates = [];
   orbs = [];
+  trailLine.geometry.dispose();
+  trailLine.geometry = new THREE.BufferGeometry();
 
   let gateX = 650;
   let gapCenter = HEIGHT * 0.5;
   for (let i = 0; i < 7; i++) {
     gapCenter = nextGapCenter(gapCenter);
     gates.push(makeGate(gateX, gapCenter));
-    if (i % 2 === 0) {
-      orbs.push({ x: gateX - randomBetween(105, 145), y: gapCenter, radius: 9, collected: false, phase: Math.random() * 6 });
-    }
+    if (i % 2 === 0) orbs.push(makeOrb(gateX - randomBetween(105, 145), gapCenter));
     gateX += randomBetween(GATE_SPACING_MIN, GATE_SPACING_MAX);
   }
 
   scoreEl.textContent = formatScore(score);
   startButton.innerHTML = '<span aria-hidden="true">▶</span> LAUNCH RUN';
+  setOverlay();
   draw();
 }
 
 function nextGapCenter(previous) {
   return clamp(previous + randomBetween(-135, 135), 128, HEIGHT - 128);
-}
-
-function makeGate(x, center) {
-  const gapHeight = randomBetween(194, 224);
-  return {
-    x,
-    gapTop: center - gapHeight * 0.5,
-    gapBottom: center + gapHeight * 0.5,
-    passed: false,
-  };
 }
 
 function startGame() {
@@ -121,6 +300,7 @@ function startGame() {
   running = true;
   gameOver = false;
   startButton.innerHTML = '<span aria-hidden="true">◆</span> RUN IN PROGRESS';
+  setOverlay();
   lastFrame = performance.now();
   requestAnimationFrame(gameLoop);
 }
@@ -156,6 +336,7 @@ function endGame() {
     saveBest();
   }
   startButton.innerHTML = '<span aria-hidden="true">↻</span> TRY AGAIN';
+  setOverlay();
 }
 
 function spawnAhead() {
@@ -168,9 +349,7 @@ function spawnAhead() {
     lastX += randomBetween(GATE_SPACING_MIN, GATE_SPACING_MAX);
     center = nextGapCenter(center);
     gates.push(makeGate(lastX, center));
-    if (Math.random() < 0.8) {
-      orbs.push({ x: lastX - randomBetween(115, 175), y: center, radius: 9, collected: false, phase: Math.random() * 6 });
-    }
+    if (Math.random() < 0.8) orbs.push(makeOrb(lastX - randomBetween(115, 175), center));
   }
 }
 
@@ -209,21 +388,33 @@ function update(dt) {
       gate.passed = true;
       addParticles(PLAYER_X, playerY, '#8c77ff', 4);
     }
+    gate.group.position.x = worldX(screenX);
   }
 
   for (const orb of orbs) {
     if (orb.collected) continue;
     const screenX = orb.x - distance + PLAYER_X;
     orb.phase += dt * 3;
+    orb.group.position.x = worldX(screenX);
+    orb.group.position.y = worldY(orb.y) + Math.sin(orb.phase) * 0.035;
+    orb.group.rotation.y += dt * 1.3;
+    orb.group.rotation.z += dt * 0.8;
+    const pulse = 1 + Math.sin(orb.phase) * 0.12;
+    orb.group.scale.setScalar(pulse);
     if (Math.hypot(screenX - PLAYER_X, orb.y - playerY) < orb.radius + PLAYER_SIZE + 3) {
       orb.collected = true;
       score += 50;
       scoreEl.textContent = formatScore(score);
       addParticles(PLAYER_X, playerY, '#ffe576', 15);
+      disposeGroup(orb.group);
     }
   }
 
-  gates = gates.filter((gate) => gate.x - distance + PLAYER_X > -GATE_WIDTH - 10);
+  gates = gates.filter((gate) => {
+    if (gate.x - distance + PLAYER_X > -GATE_WIDTH - 10) return true;
+    disposeGroup(gate.group);
+    return false;
+  });
   orbs = orbs.filter((orb) => !orb.collected && orb.x - distance + PLAYER_X > -30);
   updateParticles(dt);
   shake = Math.max(0, shake - dt * 35);
@@ -258,189 +449,56 @@ function updateParticles(dt) {
   }
 }
 
-function drawBackground() {
-  const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-  gradient.addColorStop(0, '#0c1030');
-  gradient.addColorStop(0.55, '#11123b');
-  gradient.addColorStop(1, '#090b24');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  const nebula = ctx.createRadialGradient(WIDTH * 0.72, HEIGHT * 0.48, 10, WIDTH * 0.72, HEIGHT * 0.48, 420);
-  nebula.addColorStop(0, 'rgba(87, 65, 199, 0.18)');
-  nebula.addColorStop(1, 'rgba(87, 65, 199, 0)');
-  ctx.fillStyle = nebula;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  for (const star of stars) {
-    const x = ((star.x - distance * star.depth * 0.23) % WIDTH + WIDTH) % WIDTH;
-    const twinkle = 0.48 + Math.sin(elapsed * 1.7 + star.phase) * 0.3;
-    ctx.globalAlpha = twinkle;
-    ctx.fillStyle = star.depth > 0.65 ? '#9ceeff' : '#e1e5ff';
-    ctx.fillRect(x, star.y, star.size, star.size);
+function updateScene() {
+  const starPositions = starGeometry.attributes.position.array;
+  for (let i = 0; i < stars.length; i++) {
+    const star = stars[i];
+    const x = ((star.x - distance * star.depth * 0.00075 + 10) % 20 + 20) % 20 - 10;
+    const twinkle = 0.82 + Math.sin(elapsed * 1.7 + star.phase) * 0.18;
+    starPositions[i * 3] = x * twinkle;
+    starPositions[i * 3 + 1] = star.y;
+    starPositions[i * 3 + 2] = (star.depth - 0.5) * 1.2;
   }
-  ctx.globalAlpha = 1;
+  starGeometry.attributes.position.needsUpdate = true;
 
-  ctx.strokeStyle = 'rgba(106, 133, 255, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, 34);
-  ctx.lineTo(WIDTH, 34);
-  ctx.moveTo(0, HEIGHT - 34);
-  ctx.lineTo(WIDTH, HEIGHT - 34);
-  ctx.stroke();
-}
+  player.position.set(worldX(PLAYER_X), worldY(playerY), 0.5);
+  player.rotation.z = direction * -0.16;
+  engineGlow.scale.y = 0.78 + Math.sin(elapsed * 24) * 0.18;
 
-function drawGate(gate) {
-  const x = gate.x - distance + PLAYER_X;
-  if (x < -GATE_WIDTH - 10 || x > WIDTH + 10) return;
-
-  ctx.save();
-  ctx.shadowColor = '#7f5aff';
-  ctx.shadowBlur = 19;
-  const topGradient = ctx.createLinearGradient(x, 0, x + GATE_WIDTH, 0);
-  topGradient.addColorStop(0, '#5c38c9');
-  topGradient.addColorStop(0.5, '#b17aff');
-  topGradient.addColorStop(1, '#4e3de0');
-  ctx.fillStyle = topGradient;
-  ctx.fillRect(x, 0, GATE_WIDTH, gate.gapTop);
-  ctx.fillRect(x, gate.gapBottom, GATE_WIDTH, HEIGHT - gate.gapBottom);
-
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#d9aaff';
-  ctx.fillRect(x, gate.gapTop - 3, GATE_WIDTH, 4);
-  ctx.fillRect(x, gate.gapBottom, GATE_WIDTH, 4);
-  ctx.fillStyle = 'rgba(255,255,255,.19)';
-  for (let y = 18; y < gate.gapTop - 14; y += 25) ctx.fillRect(x + 8, y, GATE_WIDTH - 16, 2);
-  for (let y = gate.gapBottom + 18; y < HEIGHT - 14; y += 25) ctx.fillRect(x + 8, y, GATE_WIDTH - 16, 2);
-  ctx.restore();
-}
-
-function drawOrb(orb) {
-  if (orb.collected) return;
-  const x = orb.x - distance + PLAYER_X;
-  if (x < -30 || x > WIDTH + 30) return;
-  const pulse = 1 + Math.sin(orb.phase) * 0.12;
-  ctx.save();
-  ctx.translate(x, orb.y);
-  ctx.rotate(orb.phase * 0.3);
-  ctx.shadowColor = '#ffe576';
-  ctx.shadowBlur = 20;
-  ctx.strokeStyle = '#fff0a0';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, -orb.radius * pulse);
-  ctx.lineTo(orb.radius * pulse, 0);
-  ctx.lineTo(0, orb.radius * pulse);
-  ctx.lineTo(-orb.radius * pulse, 0);
-  ctx.closePath();
-  ctx.stroke();
-  ctx.fillStyle = '#fff5be';
-  ctx.fillRect(-2, -2, 4, 4);
-  ctx.restore();
-}
-
-function drawTrail() {
-  if (!trail.length) return;
-  ctx.save();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.beginPath();
-  let started = false;
+  const points = [];
   for (let i = trail.length - 1; i >= 0; i--) {
     const point = trail[i];
     const x = PLAYER_X - point.age * (BASE_SPEED + Math.min(105, elapsed * 4.4));
-    if (x < -20) continue;
-    if (!started) {
-      ctx.moveTo(x, point.y);
-      started = true;
-    } else {
-      ctx.lineTo(x, point.y);
-    }
+    if (x >= -20) points.push(new THREE.Vector3(worldX(x), worldY(point.y), 0));
   }
-  ctx.lineTo(PLAYER_X, playerY);
-  ctx.strokeStyle = 'rgba(65, 230, 255, .28)';
-  ctx.lineWidth = 15;
-  ctx.shadowColor = '#24ddff';
-  ctx.shadowBlur = 25;
-  ctx.stroke();
-  ctx.strokeStyle = '#72f8ff';
-  ctx.lineWidth = 4;
-  ctx.shadowBlur = 12;
-  ctx.stroke();
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.2;
-  ctx.shadowBlur = 0;
-  ctx.stroke();
-  ctx.restore();
-}
+  points.push(new THREE.Vector3(worldX(PLAYER_X), worldY(playerY), 0));
+  trailLine.geometry.dispose();
+  trailLine.geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-function drawPlayer() {
-  ctx.save();
-  ctx.translate(PLAYER_X, playerY);
-  ctx.rotate(direction * -0.42);
-  ctx.shadowColor = '#54f3ff';
-  ctx.shadowBlur = 22;
-  ctx.fillStyle = '#8fffff';
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(13, 0);
-  ctx.lineTo(-8, -9);
-  ctx.lineTo(-4, 0);
-  ctx.lineTo(-8, 9);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawParticles() {
-  for (const particle of particles) {
-    ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
-    ctx.fillStyle = particle.color;
-    ctx.shadowColor = particle.color;
-    ctx.shadowBlur = 9;
-    ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+  const particlePositions = new Float32Array(particles.length * 3);
+  for (let i = 0; i < particles.length; i++) {
+    particlePositions[i * 3] = worldX(particles[i].x);
+    particlePositions[i * 3 + 1] = worldY(particles[i].y);
+    particlePositions[i * 3 + 2] = 0;
   }
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
-}
+  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  particleGeometry.attributes.position.needsUpdate = true;
+  particlePoints.material.opacity = particles.length ? 0.9 : 0;
 
-function drawOverlay() {
-  if (running) return;
-  ctx.fillStyle = 'rgba(5, 7, 24, .42)';
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.textAlign = 'center';
-  ctx.shadowColor = '#60f3ff';
-  ctx.shadowBlur = 20;
-  ctx.fillStyle = '#f4fbff';
-  ctx.font = '800 42px Orbitron, Arial, sans-serif';
-  ctx.fillText(gameOver ? 'SIGNAL LOST' : 'READY, PILOT?', WIDTH / 2, HEIGHT / 2 - 28);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#aab6e9';
-  ctx.font = '600 17px Rajdhani, Arial, sans-serif';
-  ctx.fillText(gameOver ? `DISTANCE ${formatScore(score)}  ·  BEST ${formatScore(best)}` : 'Hold SPACE to rise · Release to fall', WIDTH / 2, HEIGHT / 2 + 9);
-  ctx.fillStyle = '#67edff';
-  ctx.font = '700 12px Orbitron, Arial, sans-serif';
-  ctx.fillText(gameOver ? 'PRESS SPACE TO TRY AGAIN' : 'DODGE THE GATES  ·  COLLECT THE STARS', WIDTH / 2, HEIGHT / 2 + 42);
+  if (shake > 0) {
+    camera.position.x = randomBetween(-shake, shake) / WORLD_SCALE;
+    camera.position.y = randomBetween(-shake, shake) / WORLD_SCALE;
+  } else {
+    camera.position.x = 0;
+    camera.position.y = 0;
+  }
+  camera.lookAt(0, 0, 0);
+  scene.background.set(flash > 0 ? '#260b2c' : '#090b22');
 }
 
 function draw() {
-  ctx.save();
-  if (shake > 0) ctx.translate(randomBetween(-shake, shake), randomBetween(-shake, shake));
-  drawBackground();
-  for (const gate of gates) drawGate(gate);
-  for (const orb of orbs) drawOrb(orb);
-  drawTrail();
-  drawParticles();
-  drawPlayer();
-  if (flash > 0) {
-    ctx.fillStyle = `rgba(255, 75, 143, ${flash * 0.28})`;
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  }
-  drawOverlay();
-  ctx.restore();
+  updateScene();
+  renderer.render(scene, camera);
 }
 
 function gameLoop(timestamp) {
@@ -469,6 +527,7 @@ window.addEventListener('keyup', (event) => {
 window.addEventListener('blur', releaseSpace);
 canvas.addEventListener('pointerdown', (event) => {
   event.preventDefault();
+  canvas.setPointerCapture(event.pointerId);
   holdSpace();
 });
 window.addEventListener('pointerup', releaseSpace);
