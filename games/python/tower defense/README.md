@@ -1,23 +1,18 @@
-# Greenlight Defense
+# Greenlight Defense — Three.js
 
-A desktop tower defense game built with Pygame. Build Dart, Cannon, and Frost towers, then defend your base through increasingly difficult waves.
+A 3D browser tower-defense game built with Three.js. Defend the core through increasingly difficult waves using seven tower types and six enemy classes.
 
-## Run
+## Start the game
 
-From the workspace root, run:
-
-```bash
-/Users/qizhang/Documents/AI_vibe_coding/.venv-1/bin/python "games/python/tower defense/main.py"
-```
-
-Alternatively, open a terminal in this folder and run `python main.py`. Install the dependency from `requirements.txt` first if Pygame is not already available in your selected Python environment.
+Open `index.html` with VS Code's **Five Server** extension, or serve the workspace with any local HTTP server and visit `games/python/tower%20defense/`. The page loads Three.js as an ES module from jsDelivr, so use `http://localhost` rather than opening the HTML directly as a `file://` URL.
 
 ## Controls
 
-- Click a tower card or press **1**, **2**, or **3** to choose a tower.
-- Click open ground to build. Towers cannot be placed on the road or too close to another tower.
-- Click a built tower to select it, then use **Upgrade** or **Sell Tower**.
-- Press **Space** or click **Start Wave** to send the next wave.
-- Press **Enter** to begin; press **R** after defeat to restart; press **Esc** to quit.
+- Click a tower card or press **1–7** to select a tower; click open ground to place it.
+- Click a deployed tower to inspect it, then upgrade or sell it.
+- Click **Start Wave** or press **Space** to launch the next wave.
+- Press **Enter** to deploy; press **R** after defeat to restart.
 
-Dart towers fire quickly, Cannons deal splash damage, and Frost towers slow enemies. Earn coins from defeats and wave-clear bonuses.
+The 700-credit Ultra Tower fires a powerful all-direction blast combining splash, chaining, and slowing. Survive runners, armored and shielded enemies, regenerators, and bosses.
+
+`main.py` is the earlier Pygame desktop prototype; `requirements.txt` is only needed to run that version.

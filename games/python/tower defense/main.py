@@ -89,6 +89,54 @@ TOWER_TYPES = {
         "color": PURPLE,
         "description": "Slows enemies down",
     },
+    "sniper": {
+        "name": "Sniper Tower",
+        "hotkey": "4",
+        "cost": 145,
+        "range": 285,
+        "fire_rate": 1.55,
+        "damage": 86,
+        "color": (255, 142, 111),
+        "description": "Long-range heavy shot",
+    },
+    "arc": {
+        "name": "Arc Tower",
+        "hotkey": "5",
+        "cost": 160,
+        "range": 155,
+        "fire_rate": 1.0,
+        "damage": 27,
+        "color": (104, 237, 244),
+        "description": "Chains to nearby enemies",
+        "chain_count": 3,
+        "chain_radius": 78,
+    },
+    "mortar": {
+        "name": "Mortar Tower",
+        "hotkey": "6",
+        "cost": 185,
+        "range": 235,
+        "fire_rate": 1.8,
+        "damage": 70,
+        "color": (255, 158, 92),
+        "description": "Long-range area blast",
+        "splash_radius": 72,
+    },
+    "ultra": {
+        "name": "Ultra Tower",
+        "hotkey": "7",
+        "cost": 700,
+        "range": 265,
+        "fire_rate": 1.35,
+        "damage": 185,
+        "color": (255, 91, 226),
+        "description": "Omnidirectional combo blast",
+        "splash_radius": 112,
+        "chain_count": 5,
+        "chain_radius": 95,
+        "slow_duration": 2.2,
+        "radial_blast": True,
+    },
 }
 
 
@@ -103,6 +151,9 @@ class Enemy:
     color: tuple[int, int, int]
     path_index: int = 1
     slow_timer: float = 0.0
+    armor: float = 0.0
+    regen_rate: float = 0.0
+    trait: str = ""
     alive: bool = True
 
     def update(self, dt: float) -> bool:
@@ -117,6 +168,7 @@ class Enemy:
             self.path_index += 1
             return self.path_index >= len(PATH_POINTS)
         speed_scale = 0.48 if self.slow_timer > 0 else 1.0
+        self.hp = min(self.max_hp, self.hp + self.regen_rate * dt)
         travel = min(distance, self.speed * speed_scale * dt)
         self.x += dx / distance * travel
         self.y += dy / distance * travel
@@ -154,6 +206,8 @@ class Projectile:
     kind: str
     splash_radius: float = 0.0
     slow_duration: float = 0.0
+    chain_count: int = 0
+    chain_radius: float = 0.0
 
 
 @dataclass
@@ -170,7 +224,8 @@ class TowerDefenseGame:
         self.towers: list[Tower] = []
         self.enemies: list[Enemy] = []
         self.projectiles: list[Projectile] = []
-        self.money = 325
+        self.blasts: list[tuple[float, float, float, float, tuple[int, int, int]]] = []
+        self.money = 1000
         self.lives = 20
         self.wave = 0
         self.kills = 0
@@ -191,30 +246,61 @@ class TowerDefenseGame:
             return
         self.wave += 1
         self.wave_active = True
-        self.spawn_queue = 7 + self.wave * 2
-        self.spawn_timer = 0.35
+        self.spawn_queue = 9 + self.wave * 3
+        self.spawn_timer = 0.25
         self.wave_gap = 0.0
         self.banner = f"WAVE {self.wave} INCOMING!"
         self.banner_timer = 1.6
 
     def spawn_enemy(self) -> None:
-        scale = 1 + (self.wave - 1) * 0.19
+        # Exponential health growth makes later rounds a genuine endurance test.
+        scale = 1.26 ** (self.wave - 1)
+        armor = 0.0
+        regen_rate = 0.0
+        trait = ""
         if self.wave % 5 == 0 and self.spawn_queue == 1:
-            hp = 420 * scale
-            speed = 48 + self.wave * 1.3
-            reward = 65
+            hp = 900 * scale
+            speed = 58 + self.wave * 2.0
+            reward = 80 + self.wave * 2
             color = (255, 120, 80)
+            trait = "BOSS"
+        elif self.wave >= 6 and self.spawn_queue % 9 == 0:
+            hp = 260 * scale
+            speed = 56 + self.wave * 1.6
+            reward = 38 + self.wave
+            color = (255, 196, 86)
+            armor = 0.55
+            trait = "SHIELDED"
+        elif self.wave >= 4 and self.spawn_queue % 7 == 0:
+            hp = 240 * scale
+            speed = 54 + self.wave * 1.45
+            reward = 35 + self.wave
+            color = (125, 164, 207)
+            armor = 0.48
+            trait = "ARMORED"
+        elif self.wave >= 5 and self.spawn_queue % 6 == 0:
+            hp = 190 * scale
+            speed = 68 + self.wave * 1.55
+            reward = 32 + self.wave
+            color = (116, 245, 150)
+            regen_rate = 12 * scale
+            trait = "REGEN"
         elif self.wave >= 3 and self.spawn_queue % 4 == 0:
-            hp = 55 * scale
-            speed = 102 + self.wave * 1.5
-            reward = 14
+            hp = 88 * scale
+            speed = 128 + self.wave * 2.2
+            reward = 16
             color = (220, 120, 255)
+            trait = "RUNNER"
         else:
-            hp = 90 * scale
-            speed = 67 + self.wave * 1.7
+            hp = 150 * scale
+            speed = 78 + self.wave * 2.4
             reward = 18 + self.wave
             color = (255, 106, 127)
-        self.enemies.append(Enemy(PATH_POINTS[0][0], PATH_POINTS[0][1], hp, hp, speed, reward, color))
+            trait = "GRUNT"
+        self.enemies.append(Enemy(
+            PATH_POINTS[0][0], PATH_POINTS[0][1], hp, hp, speed, reward, color,
+            armor=armor, regen_rate=regen_rate, trait=trait,
+        ))
         self.spawn_queue -= 1
 
     def place_tower(self, position: tuple[int, int]) -> None:
@@ -262,7 +348,7 @@ class TowerDefenseGame:
 
     @staticmethod
     def upgrade_cost(tower: Tower) -> int:
-        return 55 + tower.level * 45
+        return 80 + tower.level * 60
 
     def sell_selected(self) -> None:
         tower = self.selected_tower
@@ -290,13 +376,46 @@ class TowerDefenseGame:
             target = max(candidates, key=lambda enemy: enemy.path_index - math.hypot(enemy.x - tower.x, enemy.y - tower.y) / 200)
             tower.target = target
             base = TOWER_TYPES[tower.kind]
+            if tower.kind == "ultra":
+                self.fire_ultra_blast(tower, float(stats["damage"]), float(stats["range"]))
+                tower.cooldown = float(stats["fire_rate"])
+                continue
+            projectile_speed = 530 if tower.kind in ("dart", "sniper") else 380
             self.projectiles.append(Projectile(
-                tower.x, tower.y, target, 530 if tower.kind == "dart" else 380,
+                tower.x, tower.y, target, projectile_speed,
                 float(stats["damage"]), tuple(base["color"]), tower.kind,
-                splash_radius=52 if tower.kind == "cannon" else 0,
-                slow_duration=1.4 if tower.kind == "frost" else 0,
+                splash_radius=float(base.get("splash_radius", 52 if tower.kind == "cannon" else 0)),
+                slow_duration=float(base.get("slow_duration", 1.4 if tower.kind == "frost" else 0)),
+                chain_count=int(base.get("chain_count", 0)),
+                chain_radius=float(base.get("chain_radius", 0)),
             ))
             tower.cooldown = float(stats["fire_rate"])
+
+    def fire_ultra_blast(self, tower: Tower, damage: float, blast_range: float) -> None:
+        """Fire an omnidirectional blast combining splash, chaining, and frost effects."""
+        targets = [
+            enemy for enemy in self.enemies
+            if enemy.alive and math.hypot(enemy.x - tower.x, enemy.y - tower.y) <= blast_range
+        ]
+        if not targets:
+            return
+        for enemy in targets:
+            self.damage_enemy(enemy, damage)
+            enemy.slow_timer = max(enemy.slow_timer, 2.2)
+        # The main blast hits in every direction. Chained arcs reach nearby enemies too.
+        chained = {id(enemy) for enemy in targets}
+        frontier = list(targets)
+        for _ in range(2):
+            next_frontier: list[Enemy] = []
+            for source in frontier:
+                for enemy in self.enemies:
+                    if enemy.alive and id(enemy) not in chained and math.hypot(enemy.x - source.x, enemy.y - source.y) <= 95:
+                        chained.add(id(enemy))
+                        next_frontier.append(enemy)
+                        self.damage_enemy(enemy, damage * 0.55)
+                        enemy.slow_timer = max(enemy.slow_timer, 2.2)
+            frontier = next_frontier
+        self.blasts.append((tower.x, tower.y, blast_range, 0.42, tuple(TOWER_TYPES["ultra"]["color"])))
 
     def update_projectiles(self, dt: float) -> None:
         for projectile in self.projectiles[:]:
@@ -326,9 +445,21 @@ class TowerDefenseGame:
             self.damage_enemy(enemy, projectile.damage)
         if projectile.slow_duration and enemy.alive:
             enemy.slow_timer = max(enemy.slow_timer, projectile.slow_duration)
+        if projectile.chain_count:
+            chained = {enemy}
+            current = enemy
+            for _ in range(projectile.chain_count):
+                next_target = next((candidate for candidate in self.enemies
+                    if candidate.alive and candidate not in chained
+                    and math.hypot(candidate.x - current.x, candidate.y - current.y) <= projectile.chain_radius), None)
+                if next_target is None:
+                    break
+                chained.add(next_target)
+                self.damage_enemy(next_target, projectile.damage * 0.72)
+                current = next_target
 
     def damage_enemy(self, enemy: Enemy, damage: float) -> None:
-        enemy.hp -= damage
+        enemy.hp -= damage * (1 - enemy.armor)
         if enemy.hp <= 0 and enemy.alive:
             enemy.alive = False
             self.money += enemy.reward
@@ -345,14 +476,19 @@ class TowerDefenseGame:
                 self.enemies.remove(enemy)
         self.update_towers(dt)
         self.update_projectiles(dt)
+        self.blasts = [
+            (x, y, radius, duration - dt, color)
+            for x, y, radius, duration, color in self.blasts
+            if duration > dt
+        ]
         if self.wave_active:
             self.spawn_timer -= dt
             if self.spawn_queue > 0 and self.spawn_timer <= 0:
                 self.spawn_enemy()
-                self.spawn_timer = max(0.28, 0.78 - self.wave * 0.015)
+                self.spawn_timer = max(0.16, 0.58 - self.wave * 0.025)
             if self.spawn_queue == 0 and not self.enemies:
                 self.wave_active = False
-                self.money += 45 + self.wave * 8
+                self.money += 28 + self.wave * 5
                 self.banner = f"Wave {self.wave} cleared! Bonus coins awarded."
                 self.banner_timer = 3.0
         else:
@@ -368,6 +504,7 @@ class TowerDefenseGame:
         self.draw_towers()
         self.draw_enemies()
         self.draw_projectiles()
+        self.draw_blasts()
         self.draw_hud()
         self.draw_sidebar()
         if not self.running:
@@ -412,11 +549,22 @@ class TowerDefenseGame:
             pygame.draw.circle(screen, (10, 18, 30), (round(tower.x + 2), round(tower.y + 5)), 19)
             pygame.draw.circle(screen, color, (round(tower.x), round(tower.y)), 18)
             pygame.draw.circle(screen, (235, 244, 252), (round(tower.x), round(tower.y)), 18, 2)
-            if tower.kind == "dart":
+            if tower.kind in ("dart", "sniper", "ultra"):
                 pygame.draw.polygon(screen, WHITE, [(tower.x + 12, tower.y), (tower.x - 7, tower.y - 6), (tower.x - 5, tower.y + 6)])
-            elif tower.kind == "cannon":
+                if tower.kind == "sniper":
+                    pygame.draw.line(screen, WHITE, (tower.x - 3, tower.y), (tower.x + 14, tower.y), 3)
+                elif tower.kind == "ultra":
+                    for angle in range(0, 360, 45):
+                        radians = math.radians(angle)
+                        pygame.draw.line(screen, WHITE,
+                            (round(tower.x + math.cos(radians) * 7), round(tower.y + math.sin(radians) * 7)),
+                            (round(tower.x + math.cos(radians) * 14), round(tower.y + math.sin(radians) * 14)), 2)
+            elif tower.kind in ("cannon", "mortar"):
                 pygame.draw.circle(screen, (83, 58, 19), (round(tower.x), round(tower.y)), 7)
                 pygame.draw.line(screen, WHITE, (tower.x, tower.y), (tower.x + 12, tower.y - 9), 5)
+            elif tower.kind == "arc":
+                pygame.draw.line(screen, WHITE, (tower.x - 8, tower.y), (tower.x + 8, tower.y), 3)
+                pygame.draw.line(screen, WHITE, (tower.x, tower.y - 8), (tower.x, tower.y + 8), 3)
             else:
                 pygame.draw.polygon(screen, WHITE, [(tower.x, tower.y - 11), (tower.x + 9, tower.y), (tower.x, tower.y + 11), (tower.x - 9, tower.y)])
             for level in range(tower.level):
@@ -436,6 +584,12 @@ class TowerDefenseGame:
             pygame.draw.rect(screen, MINT if enemy.hp / enemy.max_hp > 0.35 else RED, hp_rect, border_radius=3)
             if enemy.slow_timer > 0:
                 pygame.draw.circle(screen, PURPLE, (x, y), 17, 2)
+            if enemy.trait in ("ARMORED", "SHIELDED"):
+                pygame.draw.circle(screen, (193, 216, 239), (x, y), 18, 2)
+            elif enemy.trait == "REGEN":
+                pygame.draw.circle(screen, MINT, (x, y), 18, 2)
+            elif enemy.trait == "BOSS":
+                pygame.draw.circle(screen, GOLD, (x, y), 20, 3)
 
     def draw_projectiles(self) -> None:
         for projectile in self.projectiles:
@@ -444,6 +598,20 @@ class TowerDefenseGame:
         for tower in self.towers:
             if tower.target and tower.cooldown > 0.35:
                 pygame.draw.line(screen, tuple(TOWER_TYPES[tower.kind]["color"]), (round(tower.x), round(tower.y)), (round(tower.target.x), round(tower.target.y)), 1)
+
+    def draw_blasts(self) -> None:
+        for x, y, radius, duration, color in self.blasts:
+            progress = 1 - duration / 0.42
+            ring_radius = max(12, int(radius * progress))
+            alpha = max(20, int(180 * duration / 0.42))
+            glow = pygame.Surface((ring_radius * 2 + 8, ring_radius * 2 + 8), pygame.SRCALPHA)
+            center = (ring_radius + 4, ring_radius + 4)
+            pygame.draw.circle(glow, (*color, alpha), center, ring_radius, 5)
+            screen.blit(glow, (round(x - ring_radius - 4), round(y - ring_radius - 4)))
+            for angle in range(0, 360, 30):
+                radians = math.radians(angle)
+                end = (round(x + math.cos(radians) * ring_radius), round(y + math.sin(radians) * ring_radius))
+                pygame.draw.line(screen, color, (round(x), round(y)), end, 2)
 
     def draw_hud(self) -> None:
         pygame.draw.rect(screen, (11, 24, 35), (0, 0, FIELD_WIDTH, 58))
@@ -463,7 +631,7 @@ class TowerDefenseGame:
         self.buttons = []
         y = 80
         for kind, config in TOWER_TYPES.items():
-            rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 40, 67)
+            rect = pygame.Rect(x, y, SIDEBAR_WIDTH - 40, 56)
             selected = self.selected_kind == kind
             pygame.draw.rect(screen, PANEL_HI if selected else (24, 37, 55), rect, border_radius=10)
             pygame.draw.rect(screen, tuple(config["color"]), rect, 2 if selected else 1, border_radius=10)
@@ -472,7 +640,7 @@ class TowerDefenseGame:
             draw_text(screen, config["description"], FONT_SMALL, MUTED, (rect.x + 40, rect.y + 34))
             draw_text(screen, f"{config['cost']}c", FONT, GOLD if self.money >= int(config["cost"]) else RED, (rect.right - 47, rect.y + 10))
             self.buttons.append(Button(rect, str(config["name"]), tuple(config["color"]), f"tower:{kind}"))
-            y += 78
+            y += 62
 
         pygame.draw.line(screen, (51, 71, 91), (x, y + 1), (SCREEN_WIDTH - 18, y + 1))
         selected = self.selected_tower
@@ -497,7 +665,7 @@ class TowerDefenseGame:
         launch_label = "WAVE IN PROGRESS" if self.wave_active else launch_label
         self.draw_button(launch_rect, launch_label, GOLD, not self.wave_active and not self.game_over)
         self.buttons.append(Button(launch_rect, launch_label, GOLD, "wave", not self.wave_active and not self.game_over))
-        draw_text(screen, "SPACE: start wave  ·  Click to build", FONT_SMALL, MUTED, (x, 690))
+        draw_text(screen, "1–7: choose · SPACE: wave", FONT_SMALL, MUTED, (x, 690))
 
     @staticmethod
     def draw_button(rect: pygame.Rect, label: str, color: tuple[int, int, int], enabled: bool) -> None:
@@ -582,9 +750,15 @@ class TowerDefenseGame:
             elif self.running and not self.game_over:
                 if event.key == pygame.K_SPACE:
                     self.begin_wave()
-                elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
-                    self.selected_kind = ("dart", "cannon", "frost")[event.key - pygame.K_1]
-                    self.selected_tower = None
+                else:
+                    hotkey = event.unicode
+                    matching_tower = next(
+                        (kind for kind, config in TOWER_TYPES.items() if config["hotkey"] == hotkey),
+                        None,
+                    )
+                    if matching_tower:
+                        self.selected_kind = matching_tower
+                        self.selected_tower = None
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if not self.running and not self.game_over:
                 self.running = True

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07131c" />
+  <title>Greenlight Defense — 3D Tower Defense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Greenlight Defense"><span class="brand-mark">G</span><span>GREENLIGHT <b>DEFENSE</b></span></a>
+      <div class="top-status"><i></i> COMMAND LINK ACTIVE <span>3D FRONTLINE</span></div>
+    </header>
+
+    <section class="game-layout" aria-label="Greenlight Defense game">
+      <div class="arena-panel">
+        <div class="hud">
+          <div class="hud-stat"><small>WAVE</small><strong id="waveValue">00</strong></div>
+          <div class="hud-stat money"><small>SUPPLY</small><strong id="moneyValue">1,000 <em>¢</em></strong></div>
+          <div class="hud-stat base"><small>BASE INTEGRITY</small><strong><span id="livesValue">20</span><em> / 20</em></strong><div class="integrity-track"><i id="integrityBar"></i></div></div>
+          <div class="hud-stat kills"><small>ELIMINATIONS</small><strong id="killsValue">000</strong></div>
+        </div>
+        <div class="viewport-wrap">
+          <canvas id="gameCanvas" aria-label="Three-dimensional tower defense battlefield"></canvas>
+          <div class="field-label"><span class="signal"></span><span id="statusLabel">PLACE YOUR DEFENSES</span></div>
+          <div id="overlay" class="overlay">
+            <div class="overlay-card">
+              <div class="overlay-eyebrow"><i></i> OPERATION GREENLIGHT</div>
+              <h1>HOLD THE<br /><span>FRONTLINE.</span></h1>
+              <p>Deploy a defense grid. Survive the escalating enemy waves.</p>
+              <button id="beginButton" class="start-button" type="button">DEPLOY COMMAND <b>→</b></button>
+              <small>CLICK TO PLACE · UPGRADE YOUR TOWERS · SPACE TO LAUNCH A WAVE</small>
+            </div>
+          </div>
+          <div id="toast" class="toast" aria-live="polite"></div>
+          <div class="canvas-corner corner-a"></div><div class="canvas-corner corner-b"></div>
+          <div class="canvas-corner corner-c"></div><div class="canvas-corner corner-d"></div>
+        </div>
+        <footer class="arena-footer"><span><kbd>SPACE</kbd> LAUNCH WAVE</span><span><kbd>1–7</kbd> SELECT TOWER</span><span>PROTECT THE CORE <b>◆</b> HOLD THE LINE</span></footer>
+      </div>
+
+      <aside class="command-panel">
+        <div class="panel-heading"><div><small>FIELD COMMAND</small><h2>BUILD GRID</h2></div><span class="tower-count"><b id="towerCount">00</b><small>DEPLOYED</small></span></div>
+        <div class="tower-list" id="towerList" aria-label="Choose a tower"></div>
+        <div class="selection-panel" id="selectionPanel">
+          <small>SELECTED UNIT</small>
+          <strong id="selectedName">NO TOWER SELECTED</strong>
+          <div class="selected-stats" id="selectedStats">Click a deployed tower to inspect it.</div>
+          <div class="selection-actions">
+            <button id="upgradeButton" type="button" disabled>UPGRADE</button>
+            <button id="sellButton" type="button" disabled>SELL</button>
+          </div>
+        </div>
+        <div class="enemy-intel">
+          <small>THREAT INTEL</small>
+          <div><i class="threat-runner"></i> RUNNER <i class="threat-armor"></i> ARMORED</div>
+          <div><i class="threat-regen"></i> REGEN <i class="threat-boss"></i> BOSS</div>
+        </div>
+        <button id="waveButton" class="wave-button" type="button"><span class="wave-icon">▶</span><span><b>START WAVE</b><small id="waveButtonSub">READY FOR DEPLOYMENT</small></span><kbd>SPACE</kbd></button>
+      </aside>
+    </section>
+    <footer class="page-footer"><span>GREENLIGHT DEFENSE <i>©</i> TOWER COMMAND</span><span>PLAN. DEPLOY. SURVIVE.</span><span>BUILD COSTS SHOWN IN <b>¢</b></span></footer>
+  </main>
+</body>
+</html>
