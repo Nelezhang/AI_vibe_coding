@@ -1,0 +1,1 @@
+make a simple game obsicle course that is like if you beat a level, thanyou get 100 coins. while advancing levels, you can buy new skins that look cooler, and the most expensive object will be 10000 coins, and create this with pygame. also, it is infinite.
