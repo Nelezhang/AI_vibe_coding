@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11142b">
+  <title>Multigamer — 3D Arcade</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="./"><span class="brand-icon">M</span><span>MULTI<b>GAMER</b><small>THE 3D ARCADE</small></span></a>
+      <div class="top-actions">
+        <label class="skin-picker">CHARACTER <select id="skinSelect" aria-label="Choose character skin">
+          <option value="buddy">Lime Buddy</option>
+          <option value="robot">Robot</option>
+          <option value="cat">Space Cat</option>
+          <option value="knight">Knight</option>
+          <option value="alien">Alien</option>
+        </select></label>
+        <span class="top-chip"><i></i> 20 GAMES · ONE ARCADE</span>
+      </div>
+    </header>
+    <main>
+      <section id="menu" class="menu">
+        <div class="hero">
+          <div><p class="eyebrow">YOUR NEXT FAVORITE GAME IS HERE</p><h1>ONE ARCADE.<br><em>TWENTY WORLDS.</em></h1><p class="intro">Collect treasure, blast targets, survive the storm, or race through checkpoints. Pick a game and jump right in.</p></div>
+          <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="hero-cube">✦</span><span class="spark s1">✧</span><span class="spark s2">✦</span><span class="spark s3">✧</span></div>
+        </div>
+        <div class="section-head"><div><p class="eyebrow">CHOOSE YOUR CHALLENGE</p><h2>THE GAME ROOM <span id="gameCount">20</span></h2></div><p>Each game has its own objective.</p></div>
+        <div id="gameGrid" class="game-grid" aria-label="Choose a game"></div>
+      </section>
+      <section id="gameScreen" class="game-screen" hidden>
+        <div class="game-header"><div><p class="eyebrow" id="gameCategory"></p><h1 id="gameTitle"></h1></div><button id="menuButton" class="secondary" type="button">← ALL GAMES</button></div>
+        <div class="arena-layout">
+          <div class="arena">
+            <canvas id="canvas" aria-label="Three-dimensional arcade game"></canvas>
+            <div class="arena-top"><span id="status">READY</span><span id="timer">00:00</span></div>
+            <div id="result" class="result" hidden><div class="result-card"><p class="eyebrow" id="resultEyebrow"></p><h2 id="resultTitle"></h2><p id="resultText"></p><div class="result-actions"><button id="retryButton" class="primary" type="button">PLAY AGAIN</button><button id="resultMenuButton" class="secondary" type="button">ALL GAMES</button></div></div></div>
+          </div>
+          <aside class="info-panel">
+            <p class="eyebrow">YOUR MISSION</p><h2 id="mission"></h2><p id="description"></p>
+            <div class="stat"><span>PROGRESS</span><strong id="progress"></strong></div>
+            <div class="stat"><span>HEARTS</span><strong id="lives"></strong></div>
+            <div class="divider"></div>
+            <h3>HOW TO PLAY</h3><div class="control"><kbd>W A S D</kbd><span>or arrow keys to move</span></div><div class="control"><kbd>SPACE</kbd><span id="actionHint">fire at the nearest target</span></div><div class="control"><kbd>ESC</kbd><span>return to game menu</span></div>
+            <p class="tip" id="tip"></p>
+            <button id="restartButton" class="secondary restart" type="button">↻ RESTART GAME</button>
+          </aside>
+        </div>
+        <footer class="game-footer">MULTIGAMER <span>·</span> BUILT FOR PLAY</footer>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
