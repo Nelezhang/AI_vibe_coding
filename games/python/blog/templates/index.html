@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Recent posts · Small Press{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">From the community</p>
+      <h1>Recent posts</h1>
+    </div>
+    {% if g.user %}<a class="button" href="{{ url_for('create_post') }}">Write a post</a>{% endif %}
+  </div>
+  {% if posts %}
+    <div class="post-list">
+      {% for post in posts %}
+        <article class="post-card">
+          <p class="post-meta">By {{ post.username }} · {{ post.created_at }}</p>
+          <h2><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+          <p class="excerpt">{{ post.body|truncate(260) }}</p>
+          <a class="read-more" href="{{ url_for('post_detail', post_id=post.id) }}">Read post →</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="empty-state">
+      <h2>No posts yet</h2>
+      <p>When someone publishes a post, it will appear here.</p>
+      {% if g.user %}<a class="button" href="{{ url_for('create_post') }}">Write the first post</a>{% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

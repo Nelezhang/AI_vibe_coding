@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create account · Small Press{% endblock %}
+{% block content %}
+  <section class="form-card">
+    <p class="eyebrow">Join the community</p>
+    <h1>Create an account</h1>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" minlength="3"
+             maxlength="32" pattern="[A-Za-z0-9_.-]{3,32}" required
+             value="{{ request.form.get('username', '') }}">
+      <small>3–32 letters, numbers, dots, dashes, or underscores.</small>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="new-password"
+             minlength="8" required>
+      <label for="password_confirmation">Confirm password</label>
+      <input id="password_confirmation" name="password_confirmation" type="password"
+             autocomplete="new-password" minlength="8" required>
+      <button class="button" type="submit">Create account</button>
+    </form>
+    <p class="form-note">Already registered? <a href="{{ url_for('login') }}">Log in</a>.</p>
+  </section>
+{% endblock %}

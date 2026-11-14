@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} · Small Press{% endblock %}
+{% block content %}
+  <section class="form-card post-editor">
+    <p class="eyebrow">Your words, your space</p>
+    <h1>{{ heading }}</h1>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="title">Title</label>
+      <input id="title" name="title" maxlength="200" required value="{{ title }}">
+      <label for="body">Post</label>
+      <textarea id="body" name="body" rows="12" maxlength="20000" required>{{ body }}</textarea>
+      <div class="form-actions">
+        <button class="button" type="submit">Save post</button>
+        <a class="button secondary" href="{{ url_for('index') }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}
